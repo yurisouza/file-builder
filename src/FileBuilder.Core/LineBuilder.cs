@@ -135,7 +135,7 @@ namespace FileBuilder.Core
         /// <summary>
         /// Gets the position of the text specific.
         /// </summary>
-        /// <param name="text">Text of the searched column.</param>
+        /// <param name="text">Text of the searched column. Begin in zero</param>
         /// <returns>Return the column position.</returns>
         public int GetPosition(string text)
         {
@@ -158,6 +158,12 @@ namespace FileBuilder.Core
 
             return text;
         }
+
+        /// <summary>
+        /// Gets the current column position
+        /// </summary>
+        /// <returns>Return the current column position.</returns>
+        public int GetCurrentPosition() => _columnPosition;
 
         /// <summary>
         /// Gets text of next column available.
