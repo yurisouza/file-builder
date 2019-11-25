@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -121,6 +123,31 @@ namespace FileBuilder.Core
                 return string.Empty;
 
             return _currentLine.GetText(_header.GetPosition(headerName));
+        }
+
+        /// <summary>
+        /// Gets the current line as object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>Returns a object of the current line</returns>
+        public T ReadCurrentLine<T>() where T : class
+        {
+            IDictionary<string, object> obj = new ExpandoObject();
+
+            if (_currentLine is null)
+                NextLine();
+
+            string headerWord = _header.GetText(0);
+
+            while (headerWord != string.Empty)
+            {
+                obj.Add(headerWord, _currentLine.GetText(_header.GetPosition(headerWord)));
+                headerWord = _header.NextText();
+            }
+
+            var textObject = JsonConvert.SerializeObject(obj);
+
+            return JsonConvert.DeserializeObject<T>(textObject);
         }
 
         /// <summary>

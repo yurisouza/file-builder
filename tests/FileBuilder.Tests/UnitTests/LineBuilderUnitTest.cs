@@ -2,6 +2,7 @@
 using FileBuilder.Tests.Faker;
 using FluentAssertions;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Xunit;
 
@@ -96,6 +97,15 @@ namespace FileBuilder.Tests.UnitTests
 
             //Assert
             line.GetCurrentPosition().Should().Be(texts.Count()-1);
+        }
+
+        [Fact]
+        public void Testing()
+        {
+            var aa = new FileStream(@"teste.txt", FileMode.OpenOrCreate);
+            var file = new ReadFile(aa, ";", true);
+            var p = file.ReadCurrentLine<Pessoa>();
+
         }
     }
 }
