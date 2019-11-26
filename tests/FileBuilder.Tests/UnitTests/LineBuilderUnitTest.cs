@@ -1,6 +1,9 @@
 ﻿using FileBuilder.Core;
+using FileBuilder.Core.Mapping;
 using FileBuilder.Tests.Faker;
+using FileBuilder.Tests.Faker.Entities;
 using FluentAssertions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -96,16 +99,25 @@ namespace FileBuilder.Tests.UnitTests
             var line = new LineBuilder(texts);
 
             //Assert
-            line.GetCurrentPosition().Should().Be(texts.Count()-1);
+            line.GetCurrentPosition().Should().Be(texts.Count() - 1);
         }
 
         [Fact]
         public void Testing()
         {
-            var aa = new FileStream(@"teste.txt", FileMode.OpenOrCreate);
-            var file = new ReadFile(aa, ";", true);
-            var p = file.ReadCurrentLine<Pessoa>();
+            string projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+            var filesDirectory = Path.Combine(projectDirectory, "Faker", "Files");
 
+            var aa = new FileStream(Path.Combine(filesDirectory, "Pessoa.txt"), FileMode.OpenOrCreate);
+            var file = new ReadFile(aa, ";", true);
+            var line = file.ReadCurrentLine<Pessoa>();
+
+            var mapping = new EntityMapping<Person>();
+            mapping.MapProperty("nome", p => p.FirstName);
+            mapping.MapProperty("sobrenome", p => p.LastName);
+            mapping.MapProperty("email", p => p.Mail);
+
+            var perso = mapping.Map(file.ReadCurrentLine());
         }
     }
 }

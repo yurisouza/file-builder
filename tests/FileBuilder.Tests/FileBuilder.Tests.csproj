@@ -19,4 +19,8 @@
     <ProjectReference Include="..\..\src\FileBuilder.Core\FileBuilder.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Faker\Files\" />
+  </ItemGroup>
+
 </Project>

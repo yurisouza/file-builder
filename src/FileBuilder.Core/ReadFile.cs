@@ -150,6 +150,24 @@ namespace FileBuilder.Core
             return JsonConvert.DeserializeObject<T>(textObject);
         }
 
+        public IDictionary<string, string> ReadCurrentLine()
+        {
+            var obj = new Dictionary<string, string>();
+
+            if (_currentLine is null)
+                NextLine();
+
+            string headerWord = _header.GetText(0);
+
+            while (headerWord != string.Empty)
+            {
+                obj.Add(headerWord, _currentLine.GetText(_header.GetPosition(headerWord)));
+                headerWord = _header.NextText();
+            }
+
+            return obj;
+        }
+
         /// <summary>
         /// Set the first line of the file to the current line. Header is disregarded, if there is.
         /// </summary>
