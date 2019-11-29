@@ -1,2 +1,3 @@
 nome;sobrenome;email
-yuri;pereira;contato.yuripereira@gmail.com
+Yuri;Pereira;contato.yuripereira@gmail.com
+Leonardo;Fidellyt;contato@leonardofidellyt.com
