@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using FileBuilder.Core.Mapping;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace FileBuilder.Core
@@ -150,7 +152,7 @@ namespace FileBuilder.Core
             return JsonConvert.DeserializeObject<T>(textObject);
         }
 
-        public IDictionary<string, string> ReadCurrentLine()
+        private IDictionary<string, string> ReadCurrentLine()
         {
             var obj = new Dictionary<string, string>();
 
@@ -166,6 +168,17 @@ namespace FileBuilder.Core
             }
 
             return obj;
+        }
+
+        /// <summary>
+        /// Gets the current line as object using mapping
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="mapping"></param>
+        /// <returns></returns>
+        public TEntity ReadCurrentLine<TEntity>(EntityMapping<TEntity> mapping) where TEntity : class, new() 
+        {
+            return mapping.Map(ReadCurrentLine());
         }
 
         /// <summary>
