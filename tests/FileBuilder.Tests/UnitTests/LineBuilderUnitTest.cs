@@ -186,5 +186,41 @@ namespace FileBuilder.Tests.UnitTests
             line.GetCurrentPosition().Should().Be(texts.Count() - 1);
         }
 
+        [Theory(DisplayName = "Given I have a line with texts added When I build it Then I should have a string with all texts added separated by separator used.")]
+        [Trait("LineBuilder", "BuildLine()")]
+        [InlineData(" ")]
+        [InlineData(";")]
+        [InlineData("\t")]
+        public void Should_Be_Building_Line_With_Success(string separator)
+        {
+            //Arrange
+            var line = new LineBuilder();
+            line.AddTexts("Working", "with", "files", "using", "File", "Builder");
+
+            //Act
+            var validateTest = line.BuildLine(separator);
+
+            //Assert
+            validateTest.Should().Be($"Working{separator}with{separator}files{separator}using{separator}File{separator}Builder");
+        }
+
+        [Theory(DisplayName = "Given I have a line with texts that have break line added When I build it Then I should have a string with all texts added separated by separator used, but without break line.")]
+        [Trait("LineBuilder", "BuildLine()")]
+        [InlineData(" ")]
+        [InlineData(";")]
+        [InlineData("\t")]
+        public void Should_Be_Building_Line_With_Success_Without_Break_Line(string separator)
+        {
+            //Arrange
+            var line = new LineBuilder();
+            line.AddTexts("Workin\r\ng", "with\r\n", "\nfiles", "us\ning", "\r\nFile", "Builder\n");
+
+            //Act
+            var validateTest = line.BuildLine(separator);
+
+            //Assert
+            validateTest.Should().Be($"Working{separator}with{separator}files{separator}using{separator}File{separator}Builder");
+        }
+
     }
 }
