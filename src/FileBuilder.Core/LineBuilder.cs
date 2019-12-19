@@ -100,13 +100,24 @@ namespace FileBuilder.Core
         /// </summary>
         /// <param name="term">The term should have in the text.</param>
         /// <param name="replaceTo">Text that should replace.</param>
-        public void ReplaceContains(string term, string replaceTo)
+        public void ReplaceAllContains(string term, string replaceTo)
         {
             foreach (var text in _texts.ToList())
             {
                 if (text.Item2.Contains(term))
                     Replace(text.Item2, replaceTo);
             }
+        }
+
+        /// <summary>
+        /// Replaces all old text with another 
+        /// </summary>
+        /// <param name="oldText">Text to be replaced.</param>
+        /// <param name="newText">Text that should replace.</param>
+        public void ReplaceAll(string oldText, string newText)
+        {
+            foreach (var _ in _texts.ToList())
+                Replace(oldText, newText);
         }
 
         /// <summary>
