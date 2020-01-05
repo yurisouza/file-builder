@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 
 namespace FileBuilder.Core
@@ -34,17 +32,18 @@ namespace FileBuilder.Core
                 string line = null;
                 while ((line = reader.ReadLine()?.Trim()) != null)
                 {
-                    if (skipEmptyLine && string.IsNullOrEmpty(line))
+                    if (skipEmptyLine && line.Trim() == string.Empty)
                         continue;
 
                     var fileLine = new LineBuilder();
                     var words = line.Split(new string[] { separator }, StringSplitOptions.None);
                     fileLine.AddTexts(words);
+                    fileLine.ResetCurrentPosition();
                     _lines.Add(fileLine);
                 }
             }
 
-            if (hasHeader && _lines.Count() > 0)
+            if (hasHeader && _lines.Count > 0)
             {
                 _header = _lines[0];
                 _lines.RemoveAt(0);
@@ -66,9 +65,18 @@ namespace FileBuilder.Core
         public bool IsEmpty(bool considerHeader = false)
         {
             if (considerHeader)
-                return _header == null && _lines.Count() == 0;
+                return _header == null && _lines.Count == 0;
             else
-                return _lines.Count() == 0;
+                return _lines.Count == 0;
+        }
+
+        /// <summary>
+        /// Return if o file has header
+        /// </summary>
+        /// <returns></returns>
+        public bool HasHeader()
+        {
+            return _header != null;
         }
 
         /// <summary>
@@ -84,6 +92,28 @@ namespace FileBuilder.Core
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Gets the current line as object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>Returns a object of the current line</returns>
+        public T ReadCurrentLine<T>() where T : class
+        {
+            var textObject = JsonConvert.SerializeObject(ReadCurrentLine());
+            return JsonConvert.DeserializeObject<T>(textObject);
+        }
+
+        /// <summary>
+        /// Gets the current line as object using mapping
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="mapping"></param>
+        /// <returns></returns>
+        public TEntity ReadCurrentLine<TEntity>(EntityMapping<TEntity> mapping) where TEntity : class, new()
+        {
+            return mapping.Map(ReadCurrentLine());
         }
 
         /// <summary>
@@ -128,28 +158,12 @@ namespace FileBuilder.Core
         }
 
         /// <summary>
-        /// Gets the current line as object
+        /// Set the first line of the file to the current line. Header is disregarded, if there is.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns>Returns a object of the current line</returns>
-        public T ReadCurrentLine<T>() where T : class
+        public void ResetLinePosition()
         {
-            IDictionary<string, object> obj = new ExpandoObject();
-
-            if (_currentLine is null)
-                NextLine();
-
-            string headerWord = _header.GetText(0);
-
-            while (headerWord != string.Empty)
-            {
-                obj.Add(headerWord, _currentLine.GetText(_header.GetPosition(headerWord)));
-                headerWord = _header.NextText();
-            }
-
-            var textObject = JsonConvert.SerializeObject(obj);
-
-            return JsonConvert.DeserializeObject<T>(textObject);
+            _currentLinePosition = 0;
+            NextLine();
         }
 
         private IDictionary<string, string> ReadCurrentLine()
@@ -159,7 +173,7 @@ namespace FileBuilder.Core
             if (_currentLine is null)
                 NextLine();
 
-            string headerWord = _header.GetText(0);
+            string headerWord = _header.NextText();
 
             while (headerWord != string.Empty)
             {
@@ -168,26 +182,6 @@ namespace FileBuilder.Core
             }
 
             return obj;
-        }
-
-        /// <summary>
-        /// Gets the current line as object using mapping
-        /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <param name="mapping"></param>
-        /// <returns></returns>
-        public TEntity ReadCurrentLine<TEntity>(EntityMapping<TEntity> mapping) where TEntity : class, new() 
-        {
-            return mapping.Map(ReadCurrentLine());
-        }
-
-        /// <summary>
-        /// Set the first line of the file to the current line. Header is disregarded, if there is.
-        /// </summary>
-        public void ResetLinePosition()
-        {
-            _currentLinePosition = 0;
-            NextLine();
         }
     }
 }
