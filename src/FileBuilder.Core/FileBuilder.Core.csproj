@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <DocumentationMarkdownURL>..\..\README.md</DocumentationMarkdownURL>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Yuri Pereira de Souza</Authors>
     <Product>FileBuilder</Product>
