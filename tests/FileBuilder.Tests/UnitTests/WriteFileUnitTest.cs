@@ -12,7 +12,7 @@ namespace FileBuilder.Tests.UnitTests
 
         [Fact(DisplayName = "Given I have a write file When I add header Then I should have a final text with header.")]
         [Trait("WriteFile", "AddHeader()")]
-        public void Should_Be_Added_A_Header_()
+        public void Should_Be_Added_A_Header()
         {
             //Arrange
             var file = new WriteFile(_separator);
@@ -75,6 +75,78 @@ namespace FileBuilder.Tests.UnitTests
             //Assert
             var result = file.BuildFileString();
 
+            result.Should().Be(expectedResult);
+        }
+
+        [Fact(DisplayName = "Given I have a new line and any text When I add it Then I should have added the text in the current line and in next column available.")]
+        [Trait("WriteFile", "AddText(string text)")]
+        public void Should_Be_Add_Text()
+        {
+            //Arrange
+            var file = new WriteFile(_separator);
+
+            file.NewLine();
+            var text = "Iron Man";
+
+            var expectedLine = $"{text}{_breakline}";
+
+            //Act
+            file.AddText(text);
+
+            //Assert
+            var result = file.BuildFileString();
+
+            result.Should().Be(expectedLine);
+        }
+
+        [Fact(DisplayName = "Given I have a new line and any texts When I add it Then I should have added the texts in the current line and in nexts column availables.")]
+        [Trait("WriteFile", "AddTexts(params string[] texts)")]
+        public void Should_Be_Add_Texts()
+        {
+            //Arrange
+            var file = new WriteFile(_separator);
+
+            file.NewLine();
+            var text = "Iron Man";
+            var secondText = "Captain America";
+
+            var expectedLine = $"{text}{_separator}{secondText}{_breakline}";
+
+            //Act
+            file.AddTexts(text, secondText);
+
+            //Assert
+            var result = file.BuildFileString();
+
+            result.Should().Be(expectedLine);
+        }
+
+        [Fact(DisplayName = "Given I have a write file When I build file Then I should have the lines and words compile as a only string.")]
+        [Trait("WriteFile", "BuildFileString()")]
+        public void Should_Be_BuildFileString()
+        {
+            //Arrange
+            var file = new WriteFile(_separator);
+
+            var header = new LineBuilder();
+            header.AddTexts("name", "lastname");
+            file.AddHeader(header);
+            var expectedHeader = $"name{_separator}lastname{_breakline}";
+
+            file.NewLine();
+            file.AddTexts("Iron", "Man");
+            var expectedFirstLine = $"Iron{_separator}Man{_breakline}";
+
+            file.NewLine();
+            file.AddTexts("Captain", "America");
+            var expectedSecondLine = $"Captain{_separator}America{_breakline}";
+
+            var expectedResult = string.Concat(expectedHeader, expectedFirstLine, expectedSecondLine);
+
+            //Act
+            var result = file.BuildFileString();
+
+            //Assert
             result.Should().Be(expectedResult);
         }
     }
