@@ -2,10 +2,25 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Yuri Pereira de Souza</Authors>
+    <Product>FileBuilder</Product>
+    <PackageProjectUrl>https://github.com/yurisouza/file-builder</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/yurisouza/file-builder</RepositoryUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageIconUrl />
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Description>It's a Class Library created with .NET Standard to facilitate the creation of files and reading</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
