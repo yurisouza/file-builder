@@ -10,6 +10,8 @@
     <PackageIconUrl />
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Description>It's a Class Library created with .NET Standard to facilitate the creation of files and reading</Description>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +20,10 @@
 
   <ItemGroup>
     <None Include="..\..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\LICENSE.md">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
