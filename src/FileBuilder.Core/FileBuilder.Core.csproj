@@ -12,6 +12,8 @@
     <Description>It's a Class Library created with .NET Standard to facilitate the creation of files and reading</Description>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>Publish the project</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
