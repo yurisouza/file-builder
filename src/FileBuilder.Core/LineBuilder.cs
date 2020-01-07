@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,7 +8,7 @@ namespace FileBuilder.Core
     public class LineBuilder
     {
         private int _columnPosition;
-        private readonly List<(int, string)> _texts;
+        private readonly List<(int Position, string Value)> _texts;
 
         /// <summary>
         /// Create an instance of line builder
@@ -28,7 +29,7 @@ namespace FileBuilder.Core
             _texts = texts;
 
             if (position < 0)
-                position = texts.Count - 1;
+                position = texts.Count;
 
             _columnPosition = position;
         }
@@ -40,6 +41,14 @@ namespace FileBuilder.Core
         /// <param name="text">Text to be insert at column.</param>
         public void AddText(int column, string text)
         {
+            if (column < 1)
+                throw new Exception(message: "Invalid column position. Minimum value it's 1.");
+
+            var existentItem = _texts.FirstOrDefault(t => t.Position == column);
+
+            if (existentItem.Value != null)
+                _texts.Remove(existentItem);
+
             _texts.Add((column, text ?? ""));
         }
 
@@ -49,8 +58,8 @@ namespace FileBuilder.Core
         /// <param name="text">Text to be insert at column available.</param>
         public void AddText(string text)
         {
-            _texts.Add((_columnPosition, text ?? ""));
             _columnPosition++;
+            _texts.Add((_columnPosition, text ?? ""));
         }
 
         /// <summary>
@@ -92,7 +101,21 @@ namespace FileBuilder.Core
         /// <returns>Returns a text with the datas of line</returns>
         public string BuildLine(string separator)
         {
-            return string.Join(separator, _texts.OrderBy(d => d.Item1).Select(d => SanitizeText(d.Item2)));
+            var result = string.Empty;
+            var textsOrdened = _texts.OrderBy(d => d.Position).ToList();
+            var lastTextOrder = _texts.LastOrDefault().Position;
+
+            for (int i = 1; i <= lastTextOrder; i++)
+            {
+                var content = textsOrdened.FirstOrDefault(t => t.Position == i).Value ?? string.Empty;
+
+                result = string.Concat(result, SanitizeText(content));
+
+                if (i != lastTextOrder)
+                    result = string.Concat(result, separator);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -100,13 +123,24 @@ namespace FileBuilder.Core
         /// </summary>
         /// <param name="term">The term should have in the text.</param>
         /// <param name="replaceTo">Text that should replace.</param>
-        public void ReplaceContains(string term, string replaceTo)
+        public void ReplaceAllContains(string term, string replaceTo)
         {
-            foreach (var text in _texts.ToList())
+            foreach (var (_, Value) in _texts.ToList())
             {
-                if (text.Item2.Contains(term))
-                    Replace(text.Item2, replaceTo);
+                if (Value.Contains(term))
+                    Replace(Value, replaceTo);
             }
+        }
+
+        /// <summary>
+        /// Replaces all old text with another 
+        /// </summary>
+        /// <param name="oldText">Text to be replaced.</param>
+        /// <param name="newText">Text that should replace.</param>
+        public void ReplaceAll(string oldText, string newText)
+        {
+            for (int i = 0; i < _texts.Count; i++)
+                Replace(oldText, newText);
         }
 
         /// <summary>
@@ -116,10 +150,10 @@ namespace FileBuilder.Core
         /// <param name="newText">Text that should replace.</param>
         public void Replace(string oldText, string newText)
         {
-            var index = _texts.FindIndex(w => w.Item2 == oldText);
+            var index = _texts.FindIndex(w => w.Value == oldText);
 
             if (index >= 0 && index < _texts.Count)
-                _texts[index] = (index, newText ?? "");
+                _texts[index] = (_texts[index].Position, newText ?? "");
         }
 
         /// <summary>
@@ -128,28 +162,29 @@ namespace FileBuilder.Core
         /// <returns>Return a new instance of line.</returns>
         public LineBuilder Clone()
         {
-            var objStr = JsonConvert.SerializeObject(new LineBuilder(_texts, _columnPosition));
-            return JsonConvert.DeserializeObject<LineBuilder>(objStr);
+            var objTexts = JsonConvert.SerializeObject(_texts);
+            return new LineBuilder(JsonConvert.DeserializeObject<List<(int, string)>>(objTexts), _columnPosition);
         }
 
         /// <summary>
         /// Gets the position of the text specific.
         /// </summary>
-        /// <param name="text">Text of the searched column. Begin in zero</param>
-        /// <returns>Return the column position.</returns>
+        /// <param name="text">Text of the searched column.</param>
+        /// <returns>Return the column position. If not exists then return -1.</returns>
         public int GetPosition(string text)
         {
-            return _texts.FirstOrDefault(w => w.Item2 == text).Item1;
+            var result = _texts.FirstOrDefault(w => w.Value == text);
+            return result.Value == null ? -1 : result.Position;
         }
 
         /// <summary>
         /// Gets the text from the specified column and makes this column the current one.
         /// </summary>
-        /// <param name="columnPosition">Desired column position.</param>
+        /// <param name="columnPosition">Desired column position. Begin in: 1 (one)</param>
         /// <returns>Return the text.</returns>
         public string GetText(int columnPosition)
         {
-            var text = _texts.FirstOrDefault(w => w.Item1 == columnPosition).Item2;
+            var text = _texts.FirstOrDefault(w => w.Position == columnPosition).Value;
 
             if (text is null)
                 return string.Empty;
@@ -163,7 +198,7 @@ namespace FileBuilder.Core
         /// Gets the current column position
         /// </summary>
         /// <returns>Return the current column position.</returns>
-        public int GetCurrentPosition() => _columnPosition;
+        public int GetCurrentPosition() => _columnPosition <= 0 ? 1 : _columnPosition;
 
         /// <summary>
         /// Gets text of next column available.
@@ -171,9 +206,17 @@ namespace FileBuilder.Core
         /// <returns>Return the text of next column available.</returns>
         public string NextText()
         {
-            _columnPosition++;
             var text = GetText(_columnPosition);
+            _columnPosition += 1;
             return text;
+        }
+
+        /// <summary>
+        /// Define column position as zero.
+        /// </summary>
+        public void ResetCurrentPosition()
+        {
+            _columnPosition = 1;
         }
         
         /// <summary>
