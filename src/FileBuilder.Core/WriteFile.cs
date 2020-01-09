@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -39,19 +38,37 @@ namespace FileBuilder.Core
         /// </summary>
         /// <param name="column">Number of column. Minimum value it's 1.</param>
         /// <param name="text">Text to be insert at column.</param>
-        public void AddText(int column, string text) => _currentLine.AddText(column, text);
+        public void AddText(int column, string text)
+        {
+            if (_currentLine == null)
+                NewLine();
+
+            _currentLine.AddText(column, text);
+        }
 
         /// <summary>
         /// Adds a text to the current line in next column available.
         /// </summary>
         /// <param name="text">Text to be insert at column available.</param>
-        public void AddText(string text) => _currentLine.AddText(text);
+        public void AddText(string text)
+        {
+            if (_currentLine == null)
+                NewLine();
+
+            _currentLine.AddText(text);
+        }
 
         /// <summary>
         /// Adds texts to the current line in columns available sequentially.
         /// </summary>
         /// <param name="texts">Texts to be insert.</param>
-        public void AddTexts(params string[] texts) => _currentLine.AddTexts(texts);
+        public void AddTexts(params string[] texts)
+        {
+            if (_currentLine == null)
+                NewLine();
+
+            _currentLine.AddTexts(texts);
+        }
 
         /// <summary>
         /// Builds the file with the header, if any, and all added lines.
